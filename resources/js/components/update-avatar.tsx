@@ -8,7 +8,7 @@ import { useRef, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "./ui/dialog";
 import { Progress } from "./ui/progress";
 import { toast } from "sonner";
-import { Alert,AlertTitle,AlertDescription } from "./ui/alert";
+import { Alert, AlertTitle, AlertDescription } from "./ui/alert";
 
 
 export default function UpdateAvatar() {
@@ -21,7 +21,7 @@ export default function UpdateAvatar() {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [isUploading, setIsUploading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
-    const [error,setError] = useState<string | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
     const handleFileInputClick = () => {
         fileInputRef.current?.click();
@@ -29,7 +29,7 @@ export default function UpdateAvatar() {
 
     const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        
+
         if (!file) return;
 
         // Validate file size (e.g., max 5MB)
@@ -51,21 +51,21 @@ export default function UpdateAvatar() {
 
     const handleUpload = () => {
         if (!selectedFile) return;
-        
+
         setIsUploading(true);
         setUploadProgress(0);
-        
+
         const formData = new FormData();
         formData.append('avatar', selectedFile);
-        
+
         router.post(
             route('profile.update.avatar'),
-            formData, 
+            formData,
             {
                 forceFormData: true,
                 preserveScroll: true,
                 preserveState: true,
-                onProgress: (progress ) => {
+                onProgress: (progress) => {
                     // progress.percentage is available in newer versions of Inertia
                     if (progress?.percentage) {
                         setUploadProgress(progress.percentage);
@@ -82,7 +82,7 @@ export default function UpdateAvatar() {
                 onError: (errors) => {
                     console.error('Upload errors:', errors);
                     setError(errors.avatar);
-                    
+
                     // Handle specific error messages
                     if (errors.avatar) {
                         toast.error(errors.avatar);
@@ -91,7 +91,7 @@ export default function UpdateAvatar() {
                     } else {
                         toast.error("An unexpected error occurred. Please try again.");
                     }
-                    
+
                     setIsUploading(false);
                     setUploadProgress(0);
                 },
@@ -104,12 +104,12 @@ export default function UpdateAvatar() {
 
     const handleDialogClose = () => {
         if (isUploading) return; // Prevent closing during upload
-        
+
         // Cleanup object URL to prevent memory leaks
         if (previewImage) {
             URL.revokeObjectURL(previewImage);
         }
-        
+
         setPreviewImage(null);
         setSelectedFile(null);
         setOpenDialog(false);
@@ -118,28 +118,31 @@ export default function UpdateAvatar() {
 
     return (
         <div className="relative">
-            <Avatar className="size-36 border-2 border-accent-foreground">
-                <AvatarImage src={avatar} alt={name} />
-                <AvatarFallback className="text-3xl">
-                    {getInitials(name)}
-                </AvatarFallback>
-            </Avatar>
-            <Button 
-                size={'icon'} 
-                onClick={handleFileInputClick} 
-                className="absolute bottom-2 right-0 rounded-full"
-                disabled={isUploading}
-            >
-                <Camera className="size-4" />
-            </Button>
-            <input 
-                type="file" 
-                className="hidden" 
-                onChange={handleFileInputChange} 
-                ref={fileInputRef} 
-                accept="image/*" 
-                disabled={isUploading}
-            />
+            <div className="relative size-36 rounded-full ">
+                <Avatar className="size-36 border-2 border-accent-foreground">
+                    <AvatarImage src={avatar} alt={name} />
+                    <AvatarFallback className="text-3xl">
+                        {getInitials(name)}
+                    </AvatarFallback>
+                </Avatar>
+                <Button
+                    size={'icon'}
+                    onClick={handleFileInputClick}
+                    className="absolute bottom-2 right-0 rounded-full"
+                    disabled={isUploading}
+                >
+                    <Camera className="size-4" />
+                </Button>
+                <input
+                    type="file"
+                    className="hidden"
+                    onChange={handleFileInputChange}
+                    ref={fileInputRef}
+                    accept="image/*"
+                    disabled={isUploading}
+                />
+            </div>
+
 
             <Dialog open={openDialog} onOpenChange={setOpenDialog}>
                 <DialogContent className="sm:max-w-lg">
@@ -178,14 +181,14 @@ export default function UpdateAvatar() {
                     )}
 
                     <DialogFooter className="gap-2">
-                        <Button 
-                            onClick={handleDialogClose} 
+                        <Button
+                            onClick={handleDialogClose}
                             variant="secondary"
                             disabled={isUploading}
                         >
                             {isUploading ? "Uploading..." : "Cancel"}
                         </Button>
-                        <Button 
+                        <Button
                             onClick={handleUpload}
                             disabled={isUploading || !selectedFile}
                         >

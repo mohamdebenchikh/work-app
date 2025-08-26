@@ -38,7 +38,7 @@ return new class extends Migration
 
              // service details (only for providers)
             $table->string('profession')->nullable()->index();
-            $table->integer('years_of_experience')->nullable();
+            $table->string('years_of_experience')->nullable();
 
             // ratings
             $table->decimal('rating_average', 2, 1)->default(0)->index();

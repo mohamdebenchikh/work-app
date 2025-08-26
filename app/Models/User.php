@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -67,6 +68,7 @@ class User extends Authenticatable
             'latitude' => 'decimal:6',
             'longitude' => 'decimal:6',
             'rating_average' => 'decimal:2',
+            'profile_completion' => 'integer',
             'password' => 'hashed',
         ];
     }
@@ -93,5 +95,15 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Category::class, 'user_categories')
             ->withTimestamps();
+    }
+
+    public function serviceRequests(): HasMany
+    {
+        return $this->hasMany(ServiceRequest::class);
+    }
+
+    public function offers(): HasMany
+    {
+        return $this->hasMany(Offer::class);
     }
 }
