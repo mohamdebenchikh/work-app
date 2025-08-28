@@ -39,13 +39,23 @@ class HandleInertiaRequests extends Middleware
     {
         [$message, $author] = str(Inspiring::quotes()->random())->explode('-');
 
+        $user = $request->user();
+        $notifications = [];
+        $unreadCount = 0;
+        if ($user) {
+            $notifications = $user->notifications()->latest()->take(10)->get();
+            $unreadCount = $user->unreadNotifications()->count();
+        }
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
             'quote' => ['message' => trim($message), 'author' => trim($author)],
             'auth' => [
-                'user' => $request->user(),
+                'user' => $user,
             ],
+            'notifications' => $notifications,
+            'unreadNotificationsCount' => $unreadCount,
             'ziggy' => fn (): array => [
                 ...(new Ziggy)->toArray(),
                 'location' => $request->url(),

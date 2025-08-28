@@ -4,13 +4,13 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BookOpen, Briefcase, Folder, LayoutGrid } from 'lucide-react';
+import { BookOpen, Briefcase, Folder, LayoutGrid, MessageSquareText, Users, Bell } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
     {
         title: 'Dashboard',
-        href: '/dashboard',
+        href: route('dashboard'),
         icon: LayoutGrid,
     },
     {
@@ -18,6 +18,26 @@ const mainNavItems: NavItem[] = [
         href: '/service-requests',
         icon: Briefcase,
     },
+    {
+        title: 'Browse Providers',
+        href: route('providers.index'),
+        icon: Users,
+    },
+    {
+        title: 'My Offers',
+        href: route('my-offers.index'),
+        icon: MessageSquareText,
+    },
+    {
+        title: 'Notifications',
+        href: route('notifications.index'),
+        icon: Bell,
+    },
+    // {
+    //     title: 'Offers',
+    //     href: '/offers',
+    //     icon: Tags,
+    // },
 ];
 
 const footerNavItems: NavItem[] = [

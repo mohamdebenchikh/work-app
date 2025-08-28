@@ -106,4 +106,33 @@ class User extends Authenticatable
     {
         return $this->hasMany(Offer::class);
     }
+
+    // Reviews given by this user (as reviewer)
+    public function reviewsGiven(): HasMany
+    {
+        return $this->hasMany(Review::class, 'reviewer_id');
+    }
+
+    // Reviews received by this user (as provider)
+    public function reviewsReceived(): HasMany
+    {
+        return $this->hasMany(Review::class, 'provider_id');
+    }
+
+    // Calculate average rating for providers
+    public function averageRating(): float
+    {
+        return $this->reviewsReceived()->avg('rating') ?? 0.0;
+    }
+
+    // Count total reviews for providers
+    public function totalReviews(): int
+    {
+        return $this->reviewsReceived()->count();
+    }
+
+    public function hasReviewed(User $provider): bool
+    {
+        return $this->reviewsGiven()->where('provider_id', $provider->id)->exists();
+    }
 }

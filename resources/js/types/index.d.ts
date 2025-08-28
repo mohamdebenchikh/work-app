@@ -41,6 +41,7 @@ export interface User {
     bio?: string;
     phone?: string;
     profession?: string;
+    years_of_experience?: string;
     gender?:"male" | "female" | string;
     role?: 'provider' | 'client' | string;
     birthdate?: string;
@@ -50,14 +51,34 @@ export interface User {
     address?: string;
     latitude?: number;
     longitude?: number;
+    response_time?: string;
     email_verified_at: string | null;
+    avatar_verified_at?: string;
     skills:Skill[];
     categories:Category[];
     created_at: string;
     updated_at: string;
+    is_mine?: boolean;
+    rating_average?: number;
+    reviews_count?: number;
+    reviews_given_count?: number;
+    reviews_received_count?: number;
+    reviews_avg_rating?:number;
+    reviews_received?: Review[];
     [key: string]: unknown; // This allows for additional properties...
 }
 
+export interface Review {
+    id: number;
+    reviewer_id: number;
+    provider_id: number;
+    rating: number;
+    comment?: string;
+    created_at: string;
+    updated_at: string;
+    user: User; // The user who made the review
+    reviewer: User; // The user who made the review
+}
 
 export interface Category  {
     id:number;
@@ -91,27 +112,68 @@ export interface ServiceRequest {
     longitude: number;
     created_at: string;
     updated_at: string;
+    offers_count?: number;
+    top_offers?: Offer[];
+    is_mine?: boolean;
     [key: string]: unknown;
 }
 
+export interface Offer {
+    id: number;
+    user_id: number;
+    service_request_id: number;
+    price: number;
+    message: string;
+    status: 'pending' | 'accepted' | 'rejected' | string;
+    user: User;
+    service_request: ServiceRequest;
+    created_at: string;
+    updated_at: string;
+    is_mine?: boolean;
+    [key: string]: unknown;
+}
+
+export type PaginatedOffers = PaginatedResponse<Offer>
+
 export interface PaginatedResponse<T> {
     data: T[];
-    current_page: number;
-    first_page_url: string;
-    from: number;
-    last_page: number;
-    last_page_url: string;
     links: {
-        url: string | null;
-        label: string;
-        active: boolean;
-    }[];
-    next_page_url: string | null;
-    path: string;
-    per_page: number;
-    prev_page_url: string | null;
-    to: number;
-    total: number;
+        first: string | null;
+        last: string | null;
+        prev: string | null;
+        next: string | null;
+    };
+    meta: {
+        current_page: number;
+        from: number;
+        last_page: number;
+        links: {
+            url: string | null;
+            label: string;
+            active: boolean;
+            page?: number;
+        }[];
+        path: string;
+        per_page: number;
+        to: number;
+        total: number;
+        first_page_url: string;
+        last_page_url: string;
+        next_page_url: string | null;
+        prev_page_url: string | null;
+    }
+}
+
+export interface Notification {
+    id: string;
+    type: string;
+    data: {
+        type: string;
+        [key: string]: unknown;
+    };
+    read_at: string | null;
+    created_at: string;
+    updated_at: string;
 }
 
 
@@ -126,4 +188,10 @@ export  interface LocationDetails {
     address?:string;
     [key: string]: unknown;
 
+}
+
+export interface InfinityScrollProps<T> {
+    initialData: { data: T[]; next_page_url: string | null };
+    renderItem: (item: T) => React.ReactNode;
+    resourceName: string;
 }

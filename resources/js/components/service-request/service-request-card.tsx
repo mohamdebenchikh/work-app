@@ -66,6 +66,12 @@ export default function ServiceRequestCard({ serviceRequest }: ServiceRequestCar
                     </div>
                 )}
 
+                {serviceRequest.offers_count !== undefined && (
+                    <div className="text-sm text-muted-foreground">
+                        {serviceRequest.offers_count} {serviceRequest.offers_count === 1 ? 'Offer' : 'Offers'}
+                    </div>
+                )}
+
                 <Button variant="outline" className="w-full" asChild>
                     <Link href={route('service-requests.show', serviceRequest.id)}>
                         View Details

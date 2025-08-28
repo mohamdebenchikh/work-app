@@ -21,7 +21,11 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             SkillsSeeder::class,
-            CategoriesSeeder::class
+            CategoriesSeeder::class,
+            UserSeeder::class,
+            ServiceRequestSeeder::class,
+            OfferSeeder::class,
+            ReviewSeeder::class,
         ]);
     }
 }

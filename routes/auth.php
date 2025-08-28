@@ -3,18 +3,34 @@
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
+use App\Http\Controllers\Auth\ClientRegisterController;
 use App\Http\Controllers\Auth\EmailVerificationPromptController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
-use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Auth\ProviderRegisterController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 
 Route::middleware('guest')->group(function () {
-    Route::get('register', [RegisteredUserController::class, 'create'])
-        ->name('register');
+    // Register route that shows the role selection page
+    Route::get('register', function () {
+        return Inertia::render('custome-auth/select-role');
+    })->name('register');
 
-    Route::post('register', [RegisteredUserController::class, 'store']);
+    // Client registration
+    Route::prefix('client')->group(function () {
+        Route::get('register', [ClientRegisterController::class, 'create'])
+            ->name('client.register');
+        Route::post('register', [ClientRegisterController::class, 'store']);
+    });
+
+    // Provider registration
+    Route::prefix('provider')->group(function () {
+        Route::get('register', [ProviderRegisterController::class, 'create'])
+            ->name('provider.register');
+        Route::post('register', [ProviderRegisterController::class, 'store']);
+    });
 
     Route::get('login', [AuthenticatedSessionController::class, 'create'])
         ->name('login');

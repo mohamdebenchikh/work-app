@@ -59,6 +59,16 @@ class ServiceRequest extends Model
         return $this->hasMany(Offer::class);
     }
 
+    public function offersCount(): int
+    {
+        return $this->offers()->count();
+    }
+
+    public function topOffers(int $limit = 5): HasMany
+    {
+        return $this->hasMany(Offer::class)->orderBy('created_at', 'desc')->limit($limit);
+    }
+
     public function skills(): BelongsToMany
     {
         return $this->belongsToMany(Skill::class, 'service_request_skills')

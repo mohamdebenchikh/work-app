@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import OfferDialog from '@/components/offer/offer-dialog'; // Import OfferDialog
 import { 
     Calendar, 
     DollarSign, 
@@ -16,13 +17,20 @@ import {
     Star,
     MessageCircle
 } from 'lucide-react';
+import { Offer } from '@/types';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { useForm } from '@inertiajs/react';
+import { toast } from 'sonner';
+import axios from 'axios'; // Import axios
 
 interface ShowServiceRequestPageProps extends SharedData {
     serviceRequest: ServiceRequest;
+    offers: Offer[];
+    offersCount: number;
 }
 
-export default function ShowServiceRequest({ serviceRequest, auth }: ShowServiceRequestPageProps) {
-    const isOwner = auth.user?.id === serviceRequest.user.id;
+export default function ShowServiceRequest({ serviceRequest, auth, offers, offersCount }: ShowServiceRequestPageProps) {
+    const hasUserOffered = offers.some(offer => offer.user_id === auth.user?.id); // Check if user has offered
     const formattedDate = new Date(serviceRequest.deadline_date).toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',
@@ -32,6 +40,18 @@ export default function ShowServiceRequest({ serviceRequest, auth }: ShowService
         year: 'numeric',
         month: 'long'
     });
+
+    const handleDelete = (offerId: number) => {
+        axios.delete(route('offers.destroy', offerId))
+            .then(() => {
+                toast.success('Offer deleted successfully.');
+                window.location.reload();
+            })
+            .catch((error: any) => { // Explicitly type error
+                toast.error('Failed to delete offer.');
+                console.error(error);
+            });
+    };
 
     return (
         <AppLayout>
@@ -70,19 +90,25 @@ export default function ShowServiceRequest({ serviceRequest, auth }: ShowService
                                 
                                 {/* Action Buttons */}
                                 <div className='flex flex-col sm:flex-row gap-3'>
-                                    {!isOwner && (
+                                    {!serviceRequest.is_mine && !hasUserOffered && ( // Conditionally render
                                         <>
-                                            <Button size="lg" className='flex items-center gap-2'>
-                                                <MessageCircle className='h-4 w-4' />
-                                                Make Offer
-                                            </Button>
+                                            <OfferDialog
+                                                serviceRequest={serviceRequest}
+                                                onSuccess={() => window.location.reload()}
+                                                trigger={
+                                                    <Button size="lg" className='flex items-center gap-2'>
+                                                        <MessageCircle className='h-4 w-4' />
+                                                        Make Offer
+                                                    </Button>
+                                                }
+                                            />
                                             <Button variant="outline" size="lg" className='flex items-center gap-2'>
                                                 <User className='h-4 w-4' />
                                                 Contact
                                             </Button>
                                         </>
                                     )}
-                                    {isOwner && (
+                                    {serviceRequest.is_mine && (
                                         <Link href={route('service-requests.edit', serviceRequest.id)}>
                                             <Button variant="outline" size="lg">
                                                 Edit Request
@@ -118,6 +144,76 @@ export default function ShowServiceRequest({ serviceRequest, auth }: ShowService
                                     </div>
                                 </CardContent>
                             </Card>
+
+                            {/* Offers Section */}
+                            {offers.length > 0 && (
+                                <Card>
+                                    <CardHeader className='flex flex-row items-center justify-between space-y-0'>
+                                        <CardTitle className='flex items-center gap-2'>
+                                            <MessageCircle className='h-5 w-5' />
+                                            Offers ({offersCount})
+                                        </CardTitle>
+                                        {offersCount > 5 && (
+                                            <Link href={route('service-requests.all-offers', serviceRequest.id)}>
+                                                <Button variant="link" size="sm">
+                                                    View All ({offersCount})
+                                                </Button>
+                                            </Link>
+                                        )}
+                                    </CardHeader>
+                                    <CardContent className='space-y-4'>
+                                        {offers.map((offer) => (
+                                            <div key={offer.id} className='flex items-center justify-between border-b pb-3 last:border-b-0 last:pb-0'>
+                                                <div className='flex items-center gap-3'>
+                                                    <Avatar className='h-9 w-9'>
+                                                        <AvatarImage src={offer.user.avatar} />
+                                                        <AvatarFallback>{offer.user.name.charAt(0)}</AvatarFallback>
+                                                    </Avatar>
+                                                    <div>
+                                                        <p className='font-medium'>{offer.user.name}</p>
+                                                        <p className='text-sm text-muted-foreground'>
+                                                            Offered ${offer.price} - {new Date(offer.created_at).toLocaleDateString()}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <Badge variant={offer.status === 'accepted' ? 'default' : 'secondary'}>
+                                                        {offer.status}
+                                                    </Badge>
+                                                    {offer.is_mine && (
+                                                        <>
+                                                            <OfferDialog
+                                                                offer={offer}
+                                                                onSuccess={() => window.location.reload()}
+                                                                trigger={
+                                                                    <Button variant="outline" size="sm">Edit</Button>
+                                                                }
+                                                            />
+                                                            <AlertDialog>
+                                                                <AlertDialogTrigger asChild>
+                                                                    <Button variant="destructive" size="sm">Delete</Button>
+                                                                </AlertDialogTrigger>
+                                                                <AlertDialogContent>
+                                                                    <AlertDialogHeader>
+                                                                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                                        <AlertDialogDescription>
+                                                                            This action cannot be undone. This will permanently delete your offer.
+                                                                        </AlertDialogDescription>
+                                                                    </AlertDialogHeader>
+                                                                    <AlertDialogFooter>
+                                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                                        <AlertDialogAction onClick={() => handleDelete(offer.id)}>Continue</AlertDialogAction>
+                                                                    </AlertDialogFooter>
+                                                                </AlertDialogContent>
+                                                            </AlertDialog>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </CardContent>
+                                </Card>
+                            )}
 
                             {/* Project Details */}
                             <Card>
@@ -222,7 +318,7 @@ export default function ShowServiceRequest({ serviceRequest, auth }: ShowService
                                         </div>
                                     </div>
 
-                                    {!isOwner && (
+                                    {!serviceRequest.is_mine && (
                                         <>
                                             <Separator className='my-4' />
                                             <Button variant="outline" className='w-full'>
@@ -234,7 +330,7 @@ export default function ShowServiceRequest({ serviceRequest, auth }: ShowService
                             </Card>
 
                             {/* Make Offer CTA */}
-                            {!isOwner && (
+                            {!serviceRequest.is_mine && !hasUserOffered && ( // Conditionally render
                                 <Card className='bg-primary/5 border-primary/20'>
                                     <CardContent className='pt-6'>
                                         <div className='text-center space-y-4'>
@@ -244,10 +340,16 @@ export default function ShowServiceRequest({ serviceRequest, auth }: ShowService
                                                     Submit your proposal and start working on this project
                                                 </p>
                                             </div>
-                                            <Button size="lg" className='w-full'>
-                                                <MessageCircle className='h-4 w-4 mr-2' />
-                                                Make an Offer
-                                            </Button>
+                                            <OfferDialog
+                                                serviceRequest={serviceRequest}
+                                                onSuccess={() => window.location.reload()}
+                                                trigger={
+                                                    <Button size="lg" className='w-full'>
+                                                        <MessageCircle className='h-4 w-4 mr-2' />
+                                                        Make an Offer
+                                                    </Button>
+                                                }
+                                            />
                                         </div>
                                     </CardContent>
                                 </Card>

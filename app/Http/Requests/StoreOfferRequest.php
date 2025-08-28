@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Offer;
 
 class StoreOfferRequest extends FormRequest
 {
@@ -22,9 +24,17 @@ class StoreOfferRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'service_request_id' => ['required', 'exists:service_requests,id'],
-            'price' => ['nullable', 'numeric'],
-            'message' => ['nullable', 'string'],
+            'price' => ['required', 'numeric', 'min:0'],
+            'message' => ['required', 'string', 'max:1000'],
+            'service_request_id' => ['required', 'exists:service_requests,id',
+                function ($attribute, $value, $fail) {
+                    if (Auth::check() && Offer::where('user_id', Auth::id())
+                        ->where('service_request_id', $value)
+                        ->exists()) {
+                        $fail('You have already made an offer for this service request.');
+                    }
+                },
+            ],
         ];
     }
 }
