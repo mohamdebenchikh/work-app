@@ -15,7 +15,7 @@ use Inertia\Inertia;
 Route::middleware('guest')->group(function () {
     // Register route that shows the role selection page
     Route::get('register', function () {
-        return Inertia::render('custome-auth/select-role');
+        return Inertia::render('custom-auth/select-role');
     })->name('register');
 
     // Client registration

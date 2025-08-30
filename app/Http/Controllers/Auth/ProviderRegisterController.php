@@ -15,7 +15,7 @@ class ProviderRegisterController extends BaseRegisterController
      */
     public function create(): Response
     {
-        return Inertia::render('custome-auth/provider/register');
+        return Inertia::render('custom-auth/provider/register');
     }
 
     /**

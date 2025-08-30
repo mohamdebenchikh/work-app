@@ -1,5 +1,6 @@
 import { LucideIcon } from 'lucide-react';
 import type { Config } from 'ziggy-js';
+import { ProviderService } from './provider-service';
 
 export interface Auth {
     user: User;
@@ -28,8 +29,8 @@ export interface SharedData {
     auth: Auth;
     ziggy: Config & { location: string };
     sidebarOpen: boolean;
-    categories:Category[];
-    skills:skill[];
+    categories: Category[];
+    skills: skill[];
     [key: string]: unknown;
 }
 
@@ -42,7 +43,7 @@ export interface User {
     phone?: string;
     profession?: string;
     years_of_experience?: string;
-    gender?:"male" | "female" | string;
+    gender?: 'male' | 'female' | string;
     role?: 'provider' | 'client' | string;
     birthdate?: string;
     country?: string;
@@ -54,8 +55,8 @@ export interface User {
     response_time?: string;
     email_verified_at: string | null;
     avatar_verified_at?: string;
-    skills:Skill[];
-    categories:Category[];
+    skills: Skill[];
+    categories: Category[];
     created_at: string;
     updated_at: string;
     is_mine?: boolean;
@@ -63,7 +64,7 @@ export interface User {
     reviews_count?: number;
     reviews_given_count?: number;
     reviews_received_count?: number;
-    reviews_avg_rating?:number;
+    reviews_avg_rating?: number;
     reviews_received?: Review[];
     [key: string]: unknown; // This allows for additional properties...
 }
@@ -80,18 +81,18 @@ export interface Review {
     reviewer: User; // The user who made the review
 }
 
-export interface Category  {
-    id:number;
-    name:string;
-    slug:string;
-    icon?:string;
-    [key:string]: unknown
+export interface Category {
+    id: number;
+    name: string;
+    slug: string;
+    icon?: string;
+    [key: string]: unknown;
 }
 
-export  interface Skill {
-    id:number;
-    name:string;
-    slug:string;
+export interface Skill {
+    id: number;
+    name: string;
+    slug: string;
 }
 
 export interface ServiceRequest {
@@ -133,7 +134,7 @@ export interface Offer {
     [key: string]: unknown;
 }
 
-export type PaginatedOffers = PaginatedResponse<Offer>
+export type PaginatedOffers = PaginatedResponse<Offer>;
 
 export interface PaginatedResponse<T> {
     data: T[];
@@ -161,7 +162,7 @@ export interface PaginatedResponse<T> {
         last_page_url: string;
         next_page_url: string | null;
         prev_page_url: string | null;
-    }
+    };
 }
 
 export interface Notification {
@@ -176,8 +177,7 @@ export interface Notification {
     updated_at: string;
 }
 
-
-export  interface LocationDetails {
+export interface LocationDetails {
     lat?: number;
     lng?: number;
     country?: string;
@@ -185,13 +185,54 @@ export  interface LocationDetails {
     city?: string;
     street?: string;
     fullAddress?: string;
-    address?:string;
+    address?: string;
     [key: string]: unknown;
-
 }
 
 export interface InfinityScrollProps<T> {
     initialData: { data: T[]; next_page_url: string | null };
     renderItem: (item: T) => React.ReactNode;
     resourceName: string;
+}
+
+export interface Booking {
+    id: number;
+    status: 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled' | 'rejected';
+    scheduled_at: string;
+    duration: number;
+    price: number | null;
+    currency: string;
+    created_at: string;
+    updated_at: string;
+    provider_service: ProviderService;
+}
+
+export interface ProviderService {
+    id: number;
+    user_id: number;
+    category_id: number;
+    title: string;
+    description: string;
+    price: number | null;
+    country: string;
+    city: string;
+    is_local_only: boolean;
+    latitude: number | null;
+    longitude: number | null;
+    include_transport: boolean;
+    status: ProviderServiceStatus;
+    created_at: string;
+    updated_at: string;
+    user?: {
+        id: number;
+        name: string;
+        email: string;
+        phone?: string;
+        created_at: string;
+    };
+    category?: {
+        id: number;
+        name: string;
+        slug: string;
+    };
 }

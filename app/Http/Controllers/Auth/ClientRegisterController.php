@@ -16,7 +16,7 @@ class ClientRegisterController extends BaseRegisterController
      */
     public function create(): Response
     {
-        return Inertia::render('custome-auth/client/register');
+        return Inertia::render('custom-auth/client/register');
     }
 
     /**

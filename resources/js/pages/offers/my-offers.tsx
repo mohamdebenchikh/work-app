@@ -3,6 +3,7 @@ import { Head, Link, useForm } from '@inertiajs/react';
 import { Offer, PaginatedOffers, SharedData } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { formatCurrency } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -62,7 +63,7 @@ export default function MyOffers({ offers: initialOffers }: MyOffersPageProps) {
                                                 <div>
                                                     <p className="font-medium">Offered by {offer.user.name}</p>
                                                     <p className="text-sm text-muted-foreground">
-                                                        Price: ${offer.price} - {new Date(offer.created_at).toLocaleDateString()}
+                                                        Price: {formatCurrency(offer.price)} - {new Date(offer.created_at).toLocaleDateString()}
                                                     </p>
                                                 </div>
                                             </div>

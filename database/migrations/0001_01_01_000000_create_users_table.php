@@ -44,7 +44,7 @@ return new class extends Migration
             $table->decimal('rating_average', 2, 1)->default(0)->index();
             $table->integer('reviews_count')->default(0)->index();
 
-            $table->integer('profile_completion')->default(0);
+            $table->integer('profile_completion')->default(40);
 
             $table->timestamps();
 

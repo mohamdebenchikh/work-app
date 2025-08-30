@@ -22,7 +22,12 @@ class SetPhoneRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'phone' => 'nullable|string|max:20',
+            'phone' => [
+                'required',
+                'string',
+                'max:20',
+                'regex:/^\+[1-9]\d{7,14}$/', // E.164 format: + and up to 15 digits
+            ],
         ];
     }
 
@@ -34,8 +39,24 @@ class SetPhoneRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'phone.required' => 'Phone number is required.',
-            'phone.max' => 'Phone number must not exceed 20 characters.',
+            'phone.required' => 'Phone number is required',
+            'phone.regex' => 'Please enter a valid phone number with country code (e.g., +1234567890)',
         ];
+    }
+
+    /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation()
+    {
+        if ($this->has('phone')) {
+            // Remove all non-digit characters except +
+            $phone = preg_replace('/[^\d+]/', '', $this->phone);
+            // Ensure it starts with +
+            if (strpos($phone, '+') !== 0) {
+                $phone = '+' . ltrim($phone, '+');
+            }
+            $this->merge(['phone' => $phone]);
+        }
     }
 }

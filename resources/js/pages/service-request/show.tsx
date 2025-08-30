@@ -3,6 +3,7 @@ import { Head, Link } from '@inertiajs/react';
 import { SharedData, ServiceRequest } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { formatCurrency } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -172,7 +173,7 @@ export default function ShowServiceRequest({ serviceRequest, auth, offers, offer
                                                     <div>
                                                         <p className='font-medium'>{offer.user.name}</p>
                                                         <p className='text-sm text-muted-foreground'>
-                                                            Offered ${offer.price} - {new Date(offer.created_at).toLocaleDateString()}
+                                                            Offered {formatCurrency(offer.price)} - {new Date(offer.created_at).toLocaleDateString()}
                                                         </p>
                                                     </div>
                                                 </div>

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\ProviderService;
 
 class User extends Authenticatable
 {
@@ -91,6 +92,19 @@ class User extends Authenticatable
     }
 
     // Categories
+    public function getRouteKeyName()
+    {
+        return 'username';
+    }
+    
+    /**
+     * Get the services offered by this user (if provider).
+     */
+    public function services(): HasMany
+    {
+        return $this->hasMany(ProviderService::class, 'user_id');
+    }
+
     public function categories()
     {
         return $this->belongsToMany(Category::class, 'user_categories')

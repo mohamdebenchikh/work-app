@@ -14,7 +14,6 @@ import {
 } from '@/components/ui/sheet';
 import { 
     Menu, 
-    X, 
     Search, 
     Users, 
     Star, 
@@ -215,7 +214,7 @@ export default function PublicNavbar() {
                             </SheetTitle>
                         </SheetHeader>
 
-                        <div className="space-y-6">
+                        <div className="space-y-6 p-4 overflow-y-auto h-full flex flex-col">
                             {/* Navigation Links */}
                             <div className="space-y-1">
                                 <h3 className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">

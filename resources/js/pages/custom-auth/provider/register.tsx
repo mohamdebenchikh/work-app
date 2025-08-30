@@ -1,4 +1,4 @@
-import { Head, Link, useForm } from '@inertiajs/react';
+import {Link, useForm } from '@inertiajs/react';
 import { useState } from 'react';
 import { User, Mail, Lock, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -17,8 +17,7 @@ export default function ClientRegister() {
     email: '',
     password: '',
     password_confirmation: '',
-    terms: false,
-    role: 'client',
+    terms: "",
   });
 
   const submit = (e: React.FormEvent) => {
@@ -28,8 +27,8 @@ export default function ClientRegister() {
 
   return (
     <CustomAuthLayout
-      title="Create Client Account"
-      description="Join us to find the best professionals for your projects"
+      title="Create Provider Account"
+      description="Join as provider to offer your services to clients"
     >
       <div className="space-y-6">
         <div className="flex justify-between items-center">
@@ -149,12 +148,12 @@ export default function ClientRegister() {
             </div>
           </div>
 
-          <div className="flex items-start space-x-2 pt-2">
+          <div className="flex items-center space-x-2 ">
             <Checkbox
               id="terms"
-              checked={data.terms}
-              onCheckedChange={(checked) => setData('terms', Boolean(checked))}
-              className="mt-1"
+              checked={data.terms === "on" ? true : false}
+              onCheckedChange={(checked) => setData('terms', checked ? "on" : "")}
+              
             />
             <div className="grid gap-1.5 leading-none">
               <Label

@@ -26,6 +26,8 @@ class DatabaseSeeder extends Seeder
             ServiceRequestSeeder::class,
             OfferSeeder::class,
             ReviewSeeder::class,
+            ProviderServiceSeeder::class,
+            BookingSeeder::class, // Add BookingSeeder after all other seeders
         ]);
     }
 }

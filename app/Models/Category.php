@@ -31,4 +31,9 @@ class Category extends Model
     {
         return $this->hasMany(ServiceRequest::class);
     }
+
+    public function providerServices(): HasMany
+    {
+        return $this->hasMany(ProviderService::class, 'category_id');
+    }
 }

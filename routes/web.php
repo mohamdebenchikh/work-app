@@ -4,10 +4,13 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ServiceRequestController;
-use App\Http\Controllers\SetupProfileController;
+use App\Http\Controllers\CustomProfileSetupController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OfferController;
+use App\Http\Controllers\ProviderController;
+use App\Http\Controllers\ProviderServiceController;
 use App\Http\Controllers\Public\PublicProviderController;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\ReviewController;
 use Illuminate\Http\Request;
 use App\Models\Category;
 use Illuminate\Support\Facades\Response;
@@ -16,6 +19,10 @@ use Illuminate\Support\Facades\Response;
 // Public provider routes
 Route::get('/public-providers', [PublicProviderController::class, 'index'])->name('public-providers.index');
 Route::get('/public-providers/{user}', [PublicProviderController::class, 'show'])->name('public-providers.show');
+
+// Public service routes
+Route::get('/services', [\App\Http\Controllers\ServiceController::class, 'index'])->name('services.index');
+Route::get('/services/{service}', [\App\Http\Controllers\ServiceController::class, 'show'])->name('services.show');
 
 Route::get('/', function (Request $request) {
     $country = $request->cookie('country');
@@ -71,69 +78,70 @@ Route::middleware(['auth', 'verified', 'require.profile.setup'])->group(function
     Route::resource('service-requests', ServiceRequestController::class);
 
     // Route for storing an offer for a specific service request
-    Route::post('service-requests/{service_request}/offers', [App\Http\Controllers\OfferController::class, 'store'])
+    Route::post('service-requests/{service_request}/offers', [OfferController::class, 'store'])
         ->name('service-requests.offers.store');
 
     // Route for creating an offer for a specific service request
-    Route::get('service-requests/{service_request}/offers/create', [App\Http\Controllers\OfferController::class, 'create'])
+    Route::get('service-requests/{service_request}/offers/create', [OfferController::class, 'create'])
         ->name('service-requests.offers.create');
 
     // Routes for individual offer management (show, edit, update, delete)
-    Route::resource('offers', App\Http\Controllers\OfferController::class)
+    Route::resource('offers', OfferController::class)
         ->except(['index', 'create', 'store']);
 
     // Route for current user's offers
-    Route::get('my-offers', [App\Http\Controllers\OfferController::class, 'userOffers'])
+    Route::get('my-offers', [OfferController::class, 'userOffers'])
         ->name('my-offers.index');
 
     // Route for all offers of a specific service request (paginated)
-    Route::get('service-requests/{service_request}/all-offers', [App\Http\Controllers\OfferController::class, 'serviceRequestOffers'])
+    Route::get('service-requests/{service_request}/all-offers', [OfferController::class, 'serviceRequestOffers'])
         ->name('service-requests.all-offers');
 
+    Route::get('/providers', [ProviderController::class, 'index'])->name('providers.index');
+    Route::get('/providers/{user}', [ProviderController::class, 'show'])->name('providers.show');
+
     // Routes for reviews
-    Route::post('providers/{provider}/reviews', [App\Http\Controllers\ReviewController::class, 'store'])
+    Route::post('providers/{provider}/reviews', [ReviewController::class, 'store'])
         ->name('providers.reviews.store');
-    Route::get('providers/{provider}/reviews', [App\Http\Controllers\ReviewController::class, 'index'])
+    Route::get('providers/{provider}/reviews', [ReviewController::class, 'index'])
         ->name('providers.reviews.index');
-    Route::put('reviews/{review}', [App\Http\Controllers\ReviewController::class, 'update'])
+    Route::put('reviews/{review}', [ReviewController::class, 'update'])
         ->name('reviews.update');
-    Route::delete('reviews/{review}', [App\Http\Controllers\ReviewController::class, 'destroy'])
+    Route::delete('reviews/{review}', [ReviewController::class, 'destroy'])
         ->name('reviews.destroy');
 
     // Notifications
-    Route::get('/notifications', [App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
-    Route::post('/notifications/{id}/mark-as-read', [App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
-    Route::post('/notifications/mark-all-as-read', [App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/{id}/mark-as-read', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
+    Route::post('/notifications/mark-all-as-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
+
+
+    Route::resource('provider-services', ProviderServiceController::class);
+    Route::patch('provider-services/{providerService}/toggle-status', [ProviderServiceController::class, 'toggleStatus'])
+        ->name('provider-services.toggle-status');
 });
+
 
 Route::middleware(['auth'])->group(function () {
-    // Profile setup routes
-    Route::get('/setup-profile', [SetupProfileController::class, 'index'])->name('setup-profile.index');
+    // Custom Profile Setup Routes
+    Route::prefix('profile-setup')->name('profile-setup.')->group(function () {
+        Route::get('/', [CustomProfileSetupController::class, 'index'])->name('index');
+        Route::match(['GET', 'POST'], '/personal-info', [CustomProfileSetupController::class, 'personalInfo'])->name('personal-info');
+        Route::match(['GET', 'POST'], '/phone-number', [CustomProfileSetupController::class, 'phoneNumber'])->name('phone-number');
+        Route::match(['GET', 'POST'], '/location', [CustomProfileSetupController::class, 'location'])->name('location');
+        Route::match(['GET', 'POST'], '/avatar', [CustomProfileSetupController::class, 'avatar'])->name('avatar');
+        Route::match(['GET', 'POST'], '/bio', [CustomProfileSetupController::class, 'bio'])->name('bio');
+        Route::match(['GET', 'POST'], '/professional-info', [CustomProfileSetupController::class, 'professionalInfo'])->name('professional-info');
+        Route::match(['GET', 'POST'], '/skills-categories', [CustomProfileSetupController::class, 'skillsCategories'])->name('skills-categories');
+        Route::match(['GET', 'POST'], '/complete-setup', [CustomProfileSetupController::class, 'completeSetup'])->name('complete-setup');
 
-    // Individual step routes
-    Route::post('/setup-profile/set-role', [SetupProfileController::class, 'setRole'])->name('setup-profile.set-role');
-    Route::post('/setup-profile/set-location', [SetupProfileController::class, 'setLocation'])->name('setup-profile.set-location');
-    Route::post('/setup-profile/set-phone', [SetupProfileController::class, 'setPhone'])->name('setup-profile.set-phone');
-    Route::post('/setup-profile/set-personal-info', [SetupProfileController::class, 'setPersonalInfo'])->name('setup-profile.set-personal-info');
-    Route::post('/setup-profile/set-avatar', [SetupProfileController::class, 'setAvatar'])->name('setup-profile.set-avatar');
-    Route::post('/setup-profile/set-professional-info', [SetupProfileController::class, 'setProfessionalInfo'])->name('setup-profile.set-professional-info');
-    Route::post('/setup-profile/set-bio', [SetupProfileController::class, 'setBio'])->name('setup-profile.set-bio');
-    Route::post('/setup-profile/set-skills-categories', [SetupProfileController::class, 'setSkillsCategories'])->name('setup-profile.set-skills-categories');
+        // Skip step route
+        Route::post('/skip/{step}', [CustomProfileSetupController::class, 'skipStep'])->name('skip');
 
-    // Complete profile setup
-    Route::post('/setup-profile/complete', [SetupProfileController::class, 'complete'])->name('setup-profile.complete');
-
-    // Update profile completion progress
-    Route::post('/setup-profile/update-progress', [SetupProfileController::class, 'updateProgress'])->name('setup-profile.update-progress');
+        // Progress API route
+        Route::get('/progress', [CustomProfileSetupController::class, 'getProgress'])->name('progress');
+    });
 });
-
-// Provider routes
-Route::get('/providers', [App\Http\Controllers\ProviderController::class, 'index'])
-    ->name('providers.index');
-
-Route::get('/providers/{provider}', [App\Http\Controllers\ProviderController::class, 'show'])
-    ->name('providers.show');
-
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';

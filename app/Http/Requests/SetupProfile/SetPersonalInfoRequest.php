@@ -22,7 +22,6 @@ class SetPersonalInfoRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'nullable|string|max:255',
             'gender' => 'nullable|string|in:male,female,other',
             'birthdate' => 'nullable|date|before:today',
         ];
